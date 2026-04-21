@@ -1,5 +1,5 @@
 
-import { auth } from "firebase-admin";
+import { adminAuth } from "../firebaseAdmin.js";
 
 export interface FirestoreErrorInfo {
   error: string;
@@ -26,7 +26,7 @@ export const handleFirestoreError = async (error: any, operationType: FirestoreE
 
     if (userId) {
       try {
-        const user = await auth().getUser(userId);
+        const user = await adminAuth.getUser(userId);
         authInfo.email = user.email || 'unknown';
         authInfo.emailVerified = user.emailVerified || false;
         authInfo.isAnonymous = false;

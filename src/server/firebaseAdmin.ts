@@ -3,7 +3,8 @@ import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config({ path: ".env" });
+dotenv.config({ path: ".env.local", override: true });
 
 const projectId = process.env.FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT;
 const dbId = process.env.FIREBASE_FIRESTORE_DATABASE_ID || process.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || "(default)";

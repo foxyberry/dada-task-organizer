@@ -6,14 +6,15 @@ import cors from "cors";
 import dotenv from "dotenv";
 import apiRoutes from "./src/server/routes/api.js";
 
-dotenv.config();
+dotenv.config({ path: ".env" });
+dotenv.config({ path: ".env.local", override: true });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT || 5001);
 
   app.use(cors());
   app.use(express.json());

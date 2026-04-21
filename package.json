@@ -41,5 +41,10 @@
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
+  },
+  "overrides": {
+    "http-proxy-agent": "^7.0.2",
+    "retry-request": "^8.0.2",
+    "teeny-request": "^10.1.2"
   }
 }
