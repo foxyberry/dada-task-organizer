@@ -1,4 +1,4 @@
-# AI Task Organizer
+# Dada Task Organizer
 
 This contains everything you need to run your app locally.
 
