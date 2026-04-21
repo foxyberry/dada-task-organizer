@@ -17,3 +17,9 @@ This contains everything you need to run your app locally.
 The local server defaults to port `5001`. To use a different port:
 
 `PORT=5002 npm run dev`
+
+## Firebase Auth
+
+For local Google sign-in, add `localhost` to Firebase Console > Authentication > Settings > Authorized domains.
+
+Also enable Google in Firebase Console > Authentication > Sign-in method.

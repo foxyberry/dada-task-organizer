@@ -60,6 +60,24 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+function getLoginErrorMessage(error: unknown) {
+  const code = typeof error === 'object' && error && 'code' in error ? String((error as { code?: unknown }).code) : '';
+
+  if (code === 'auth/unauthorized-domain') {
+    return "Firebase Authentication의 Authorized domains에 localhost를 추가해야 합니다.";
+  }
+
+  if (code === 'auth/popup-closed-by-user') {
+    return "로그인 창이 닫혔습니다. 다시 시도해주세요.";
+  }
+
+  if (code === 'auth/operation-not-allowed') {
+    return "Firebase Authentication에서 Google 로그인을 활성화해야 합니다.";
+  }
+
+  return "로그인에 실패했습니다.";
+}
+
 interface Category {
   id: string;
   name: string;
@@ -200,7 +218,7 @@ function AppContent() {
       toast.success("로그인되었습니다.");
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("로그인에 실패했습니다.");
+      toast.error(getLoginErrorMessage(error));
     }
   };
 
