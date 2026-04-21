@@ -1,0 +1,93 @@
+{
+  "entities": {
+    "Category": {
+      "title": "Category",
+      "description": "A user-defined category for tasks.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "userId": { "type": "string" },
+        "familyId": { "type": "string", "description": "Optional ID of the family group this category belongs to." },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "userId", "createdAt"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "A task that is categorized and prioritized by AI.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "categoryId": { "type": "string" },
+        "familyId": { "type": "string", "description": "Optional ID of the family group this task belongs to." },
+        "priority": { "type": "integer", "description": "1 (Low) to 5 (High)" },
+        "status": { "type": "string", "enum": ["pending", "completed"] },
+        "aiReasoning": { "type": "string" },
+        "dueDate": { "type": "string", "format": "date", "description": "ISO date string (YYYY-MM-DD)" },
+        "reminderTime": { "type": "string", "format": "time", "description": "ISO time string (HH:mm)" },
+        "isShoppingList": { "type": "boolean" },
+        "shoppingItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "category": { "type": "string" },
+              "checked": { "type": "boolean" }
+            }
+          }
+        },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "categoryId", "priority", "status", "userId", "createdAt"]
+    },
+    "FamilyGroup": {
+      "title": "FamilyGroup",
+      "description": "A group of users sharing tasks and categories.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "members": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "ownerId", "members", "createdAt"]
+    },
+    "Invite": {
+      "title": "Invite",
+      "description": "An invitation to join a family group.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "familyId": { "type": "string" },
+        "code": { "type": "string" },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["familyId", "code", "expiresAt", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "User categories"
+    },
+    "/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "User tasks"
+    },
+    "/familyGroups/{familyId}": {
+      "schema": "FamilyGroup",
+      "description": "Family groups"
+    },
+    "/invites/{inviteId}": {
+      "schema": "Invite",
+      "description": "Family invites"
+    }
+  }
+}
