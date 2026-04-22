@@ -18,6 +18,21 @@ The local server defaults to port `5001`. To use a different port:
 
 `PORT=5002 npm run dev`
 
+## Firestore
+
+This project uses a named Firestore database. Set both backend and frontend database IDs:
+
+```bash
+FIREBASE_FIRESTORE_DATABASE_ID="MY_FIRESTORE_DATABASE_ID"
+VITE_FIREBASE_FIRESTORE_DATABASE_ID="MY_FIRESTORE_DATABASE_ID"
+```
+
+Deploy Firestore rules:
+
+```bash
+firebase deploy --only firestore:rules --project ai-task-organizer-3de8d
+```
+
 ## Firebase Auth
 
 For local Google sign-in, add `localhost` to Firebase Console > Authentication > Settings > Authorized domains.
