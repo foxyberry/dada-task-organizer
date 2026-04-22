@@ -10,6 +10,7 @@ import {
   createSharedTask,
   getFamilyTasks,
 } from "../controllers/taskController.js";
+import { analyzeTask } from "../controllers/geminiController.js";
 import { authMiddleware } from "../middleware/auth.js";
 
 const router = Router();
@@ -24,6 +25,7 @@ router.post("/family/invite", authMiddleware, generateInvite);
 router.post("/family/join", authMiddleware, joinFamily);
 
 // Task routes
+router.post("/analyze-task", authMiddleware, analyzeTask);
 router.post("/tasks/shared", authMiddleware, createSharedTask);
 router.get("/tasks/family/:familyId", authMiddleware, getFamilyTasks);
 
