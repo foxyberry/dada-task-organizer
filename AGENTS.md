@@ -93,6 +93,23 @@ codex/move-gemini-api-to-backend
 - `src/App.tsx` currently writes categories and tasks directly to Firestore from the client.
 - `src/contexts/FamilyContext.tsx` uses backend API routes for family sharing.
 - `src/services/geminiService.ts` currently calls Gemini from frontend code.
+- One-off Firebase diagnostic scripts live in `scripts/diagnostics/` and should be run from the repository root.
+
+## Planned Layout
+
+Keep web and backend in this repository, but move toward a monorepo-style layout over time:
+
+```text
+apps/
+  web/
+  api/
+packages/
+  shared/
+scripts/
+  diagnostics/
+```
+
+Do not do a large app/api/shared move casually. Prefer small PRs that keep `npm run dev` working after each step.
 
 ## Highest Priority
 

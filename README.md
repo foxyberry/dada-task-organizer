@@ -18,6 +18,28 @@ The local server defaults to port `5001`. To use a different port:
 
 `PORT=5002 npm run dev`
 
+## Project Layout
+
+The app currently keeps web and backend code in one repository. Runtime code still lives under `src/`, while one-off Firebase diagnostic scripts live under `scripts/diagnostics/`.
+
+Planned direction:
+
+```text
+apps/
+  web/
+  api/
+packages/
+  shared/
+scripts/
+  diagnostics/
+```
+
+Run diagnostic scripts from the repository root so `process.cwd()` still points at the project:
+
+```bash
+npx tsx scripts/diagnostics/check-env.ts
+```
+
 ## Firestore
 
 This project uses a named Firestore database. Set both backend and frontend database IDs:
