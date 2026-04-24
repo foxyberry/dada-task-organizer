@@ -13,8 +13,7 @@ import {
   where, 
   onSnapshot, 
   deleteDoc, 
-  doc, 
-  updateDoc, 
+  doc,
   serverTimestamp, 
   orderBy,
   getDocs,
@@ -22,7 +21,11 @@ import {
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import type { ShoppingItem } from './services/geminiService';
-import { analyzeAndCreateTask } from './services/taskService';
+import {
+  analyzeAndCreateTask,
+  deleteTask as deleteTaskOnServer,
+  updateTask as updateTaskOnServer,
+} from './services/taskService';
 import { useNotification } from './hooks/useNotification';
 import { FamilyProvider, useFamily } from './contexts/FamilyContext';
 import { FamilySettings } from './components/FamilySettings';
@@ -311,12 +314,13 @@ function AppContent() {
 
   const toggleTaskStatus = async (task: Task) => {
     try {
-      await updateDoc(doc(db, 'tasks', task.id), {
+      await updateTaskOnServer(task.id, {
         status: task.status === 'pending' ? 'completed' : 'pending'
       });
     } catch (error) {
       console.error("Toggle task error:", error);
-      toast.error("상태 변경에 실패했습니다.");
+      const message = error instanceof Error ? error.message : "상태 변경에 실패했습니다.";
+      toast.error(message);
     }
   };
 
@@ -328,22 +332,24 @@ function AppContent() {
     newItems[itemIndex] = { ...newItems[itemIndex], checked: !newItems[itemIndex].checked };
 
     try {
-      await updateDoc(doc(db, 'tasks', taskId), {
+      await updateTaskOnServer(taskId, {
         shoppingItems: newItems
       });
     } catch (error) {
       console.error("Toggle shopping item error:", error);
-      toast.error("품목 상태 변경에 실패했습니다.");
+      const message = error instanceof Error ? error.message : "품목 상태 변경에 실패했습니다.";
+      toast.error(message);
     }
   };
 
   const deleteTask = async (id: string) => {
     try {
-      await deleteDoc(doc(db, 'tasks', id));
+      await deleteTaskOnServer(id);
       toast.success("할 일이 삭제되었습니다.");
     } catch (error) {
       console.error("Delete task error:", error);
-      toast.error("삭제에 실패했습니다.");
+      const message = error instanceof Error ? error.message : "삭제에 실패했습니다.";
+      toast.error(message);
     }
   };
 
