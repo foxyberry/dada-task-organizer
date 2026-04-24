@@ -1,4 +1,8 @@
 import { Router } from "express";
+import {
+  createCategory,
+  deleteCategory,
+} from "../controllers/categoryController.js";
 import { getProfile } from "../controllers/userController.js";
 import {
   createFamily,
@@ -26,6 +30,10 @@ router.get("/families", authMiddleware, getMyFamilies);
 router.post("/family/create", authMiddleware, createFamily);
 router.post("/family/invite", authMiddleware, generateInvite);
 router.post("/family/join", authMiddleware, joinFamily);
+
+// Category routes
+router.post("/categories", authMiddleware, createCategory);
+router.delete("/categories/:categoryId", authMiddleware, deleteCategory);
 
 // Task routes
 router.post("/analyze-task", authMiddleware, analyzeTask);
