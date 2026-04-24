@@ -1,6 +1,33 @@
 import { Request, Response } from "express";
 import * as taskService from "../services/taskService.js";
 
+export const analyzeAndCreateTask = async (req: Request, res: Response) => {
+  try {
+    const { input, familyId } = req.body;
+    // @ts-ignore
+    const user = req.user;
+
+    if (typeof input !== "string" || input.trim().length === 0) {
+      return res.status(400).json({ error: "Task input is required" });
+    }
+
+    if (familyId !== undefined && familyId !== null && typeof familyId !== "string") {
+      return res.status(400).json({ error: "Family ID must be a string" });
+    }
+
+    const task = await taskService.analyzeAndCreateTask({
+      input,
+      familyId: familyId ?? null,
+      userId: user.uid,
+    });
+
+    res.status(201).json(task);
+  } catch (error: any) {
+    console.error("Error analyzing and creating task:", error);
+    res.status(400).json({ error: error.message || "Failed to create task" });
+  }
+};
+
 export const createSharedTask = async (req: Request, res: Response) => {
   try {
     // @ts-ignore
