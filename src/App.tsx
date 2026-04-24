@@ -8,18 +8,17 @@ import {
 } from 'firebase/auth';
 import { 
   collection, 
-  addDoc, 
   query, 
   where, 
   onSnapshot, 
-  deleteDoc, 
-  doc,
-  serverTimestamp, 
   orderBy,
-  getDocs,
   or
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
+import {
+  createCategory as createCategoryOnServer,
+  deleteCategory as deleteCategoryOnServer,
+} from './services/categoryService';
 import type { ShoppingItem } from './services/geminiService';
 import {
   analyzeAndCreateTask,
@@ -249,33 +248,28 @@ function AppContent() {
     if (!user || !newCategoryName.trim()) return;
 
     try {
-      await addDoc(collection(db, 'categories'), {
+      await createCategoryOnServer({
         name: newCategoryName.trim(),
-        userId: user.uid,
         familyId: selectedFamilyId || null,
-        createdAt: serverTimestamp()
       });
       setNewCategoryName('');
       toast.success("카테고리가 추가되었습니다.");
     } catch (error) {
       console.error("Add category error:", error);
-      toast.error("카테고리 추가에 실패했습니다.");
+      const message = error instanceof Error ? error.message : "카테고리 추가에 실패했습니다.";
+      toast.error(message);
     }
   };
 
   const deleteCategory = async (id: string) => {
     if (!window.confirm("이 카테고리와 포함된 모든 할 일이 삭제됩니다. 계속하시겠습니까?")) return;
     try {
-      // Delete tasks in category first
-      const q = query(collection(db, 'tasks'), where('categoryId', '==', id));
-      const snapshot = await getDocs(q);
-      const deletePromises = snapshot.docs.map(d => deleteDoc(doc(db, 'tasks', d.id)));
-      await Promise.all(deletePromises);
-      await deleteDoc(doc(db, 'categories', id));
+      await deleteCategoryOnServer(id);
       toast.success("카테고리가 삭제되었습니다.");
     } catch (error) {
       console.error("Delete category error:", error);
-      toast.error("카테고리 삭제에 실패했습니다.");
+      const message = error instanceof Error ? error.message : "카테고리 삭제에 실패했습니다.";
+      toast.error(message);
     }
   };
 
