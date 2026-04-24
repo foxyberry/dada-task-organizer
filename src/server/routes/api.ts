@@ -7,6 +7,7 @@ import {
   getMyFamilies,
 } from "../controllers/familyController.js";
 import {
+  analyzeAndCreateTask,
   createSharedTask,
   getFamilyTasks,
 } from "../controllers/taskController.js";
@@ -26,6 +27,7 @@ router.post("/family/join", authMiddleware, joinFamily);
 
 // Task routes
 router.post("/analyze-task", authMiddleware, analyzeTask);
+router.post("/tasks/analyze-and-create", authMiddleware, analyzeAndCreateTask);
 router.post("/tasks/shared", authMiddleware, createSharedTask);
 router.get("/tasks/family/:familyId", authMiddleware, getFamilyTasks);
 

@@ -21,7 +21,8 @@ import {
   or
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
-import { analyzeTask, AIAnalysisResult, ShoppingItem } from './services/geminiService';
+import type { ShoppingItem } from './services/geminiService';
+import { analyzeAndCreateTask } from './services/taskService';
 import { useNotification } from './hooks/useNotification';
 import { FamilyProvider, useFamily } from './contexts/FamilyContext';
 import { FamilySettings } from './components/FamilySettings';
@@ -129,6 +130,13 @@ function AppContent() {
 
   const { families } = useFamily();
   const { permission, requestPermission, sendNotification } = useNotification();
+  const availableCategoriesForNewTask = useMemo(
+    () =>
+      categories.filter(category =>
+        selectedFamilyId ? category.familyId === selectedFamilyId : !category.familyId
+      ),
+    [categories, selectedFamilyId]
+  );
 
   // Notification Scheduler
   useEffect(() => {
@@ -270,34 +278,23 @@ function AppContent() {
 
   const processNewTask = async () => {
     if (!user || !newTaskInput.trim()) return;
-    if (categories.length === 0) {
-      toast.error("먼저 카테고리를 하나 이상 만들어주세요.");
+    if (availableCategoriesForNewTask.length === 0) {
+      toast.error(
+        selectedFamilyId
+          ? "이 가족 그룹에 카테고리를 하나 이상 만들어주세요."
+          : "먼저 개인 카테고리를 하나 이상 만들어주세요."
+      );
       return;
     }
 
     setIsAnalyzing(true);
     try {
-      const categoryNames = categories.map(c => c.name);
-      const analysis = await analyzeTask(newTaskInput, categoryNames);
-      
-      const category = categories.find(c => c.name === analysis.categoryName) || categories[0];
-
-      await addDoc(collection(db, 'tasks'), {
-        title: newTaskInput.trim(),
-        categoryId: category.id,
+      const createdTask = await analyzeAndCreateTask({
+        input: newTaskInput,
         familyId: selectedFamilyId || null,
-        priority: analysis.priority,
-        status: 'pending',
-        aiReasoning: analysis.reasoning,
-        dueDate: analysis.dueDate || null,
-        reminderTime: analysis.reminderTime || null,
-        isShoppingList: analysis.isShoppingList || false,
-        shoppingItems: analysis.shoppingItems || [],
-        userId: user.uid,
-        createdAt: serverTimestamp()
       });
 
-      if (analysis.isShoppingList) {
+      if (createdTask.isShoppingList) {
         setActiveTab('shopping');
       }
 
@@ -305,7 +302,8 @@ function AppContent() {
       toast.success("할 일이 추가되었습니다!");
     } catch (error) {
       console.error("Process task error:", error);
-      toast.error("AI 분석 중 오류가 발생했습니다.");
+      const message = error instanceof Error ? error.message : "할 일 추가 중 오류가 발생했습니다.";
+      toast.error(message);
     } finally {
       setIsAnalyzing(false);
     }
