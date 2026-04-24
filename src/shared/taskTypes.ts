@@ -23,3 +23,8 @@ export interface AnalyzeAndCreateTaskRequest {
 }
 
 export type AnalyzeAndCreateTaskResponse = TaskRecord;
+
+export interface UpdateTaskRequest {
+  status?: "pending" | "completed";
+  shoppingItems?: ShoppingItem[];
+}

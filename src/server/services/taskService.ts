@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase-admin/firestore";
 import type { AIAnalysisResult } from "../../shared/geminiTypes.js";
-import type { TaskRecord } from "../../shared/taskTypes.js";
+import type { TaskRecord, UpdateTaskRequest } from "../../shared/taskTypes.js";
 import { adminDb } from "../firebaseAdmin.js";
 import { analyzeTaskWithGemini } from "./geminiService.js";
 import { handleFirestoreError } from "../utils/errorHandlers.js";
@@ -32,6 +32,64 @@ interface CategoryRecord {
   userId: string;
   familyId?: string | null;
 }
+
+const getTaskById = async (taskId: string) => {
+  const taskDoc = await adminDb.collection("tasks").doc(taskId).get();
+  if (!taskDoc.exists) {
+    throw new Error("Task not found");
+  }
+
+  return {
+    id: taskDoc.id,
+    ...(taskDoc.data() as Omit<TaskRecord, "id">),
+  } as TaskRecord;
+};
+
+const canUpdateTask = async (task: TaskRecord, userId: string) => {
+  if (task.userId === userId) {
+    return true;
+  }
+
+  if (task.familyId) {
+    await ensureFamilyMembership(task.familyId, userId);
+    return true;
+  }
+
+  return false;
+};
+
+const canDeleteTask = async (task: TaskRecord, userId: string) => {
+  return task.userId === userId;
+};
+
+const validateShoppingItems = (shoppingItems: UpdateTaskRequest["shoppingItems"]) => {
+  if (!Array.isArray(shoppingItems)) {
+    throw new Error("Shopping items must be an array");
+  }
+
+  if (shoppingItems.length > 200) {
+    throw new Error("Shopping items must contain 200 items or fewer");
+  }
+
+  for (const item of shoppingItems) {
+    if (
+      !item ||
+      typeof item.name !== "string" ||
+      typeof item.category !== "string" ||
+      typeof item.checked !== "boolean"
+    ) {
+      throw new Error("Shopping items must include name, category, and checked");
+    }
+
+    if (item.name.trim().length === 0 || item.name.length > 200) {
+      throw new Error("Shopping item names must be between 1 and 200 characters");
+    }
+
+    if (item.category.trim().length === 0 || item.category.length > 100) {
+      throw new Error("Shopping item categories must be between 1 and 100 characters");
+    }
+  }
+};
 
 const ensureFamilyMembership = async (familyId: string, userId: string) => {
   const familyDoc = await adminDb.collection("familyGroups").doc(familyId).get();
@@ -125,6 +183,64 @@ export const analyzeAndCreateTask = async (
 
   await taskRef.set(taskData);
   return taskData;
+};
+
+export const updateTask = async (
+  taskId: string,
+  updates: UpdateTaskRequest,
+  userId: string
+): Promise<TaskRecord> => {
+  if (!taskId) {
+    throw new Error("Task ID is required");
+  }
+
+  const allowedKeys = Object.keys(updates);
+  if (allowedKeys.length === 0) {
+    throw new Error("At least one field must be provided");
+  }
+
+  if (allowedKeys.some((key) => !["status", "shoppingItems"].includes(key))) {
+    throw new Error("Only status and shoppingItems can be updated");
+  }
+
+  if (updates.status !== undefined && !["pending", "completed"].includes(updates.status)) {
+    throw new Error("Status must be pending or completed");
+  }
+
+  if (updates.shoppingItems !== undefined) {
+    validateShoppingItems(updates.shoppingItems);
+  }
+
+  const task = await getTaskById(taskId);
+  const canUpdate = await canUpdateTask(task, userId);
+  if (!canUpdate) {
+    throw new Error("Access denied");
+  }
+
+  const nextTask = {
+    ...task,
+    ...updates,
+  };
+
+  await adminDb
+    .collection("tasks")
+    .doc(taskId)
+    .update(updates as Partial<Pick<TaskRecord, "status" | "shoppingItems">>);
+  return nextTask;
+};
+
+export const deleteTask = async (taskId: string, userId: string) => {
+  if (!taskId) {
+    throw new Error("Task ID is required");
+  }
+
+  const task = await getTaskById(taskId);
+  const canDelete = await canDeleteTask(task, userId);
+  if (!canDelete) {
+    throw new Error("Only the task owner can delete this task");
+  }
+
+  await adminDb.collection("tasks").doc(taskId).delete();
 };
 
 export const createSharedTask = async (params: CreateTaskParams) => {

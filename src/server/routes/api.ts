@@ -9,7 +9,9 @@ import {
 import {
   analyzeAndCreateTask,
   createSharedTask,
+  deleteTask,
   getFamilyTasks,
+  updateTask,
 } from "../controllers/taskController.js";
 import { analyzeTask } from "../controllers/geminiController.js";
 import { authMiddleware } from "../middleware/auth.js";
@@ -29,6 +31,8 @@ router.post("/family/join", authMiddleware, joinFamily);
 router.post("/analyze-task", authMiddleware, analyzeTask);
 router.post("/tasks/analyze-and-create", authMiddleware, analyzeAndCreateTask);
 router.post("/tasks/shared", authMiddleware, createSharedTask);
+router.patch("/tasks/:taskId", authMiddleware, updateTask);
+router.delete("/tasks/:taskId", authMiddleware, deleteTask);
 router.get("/tasks/family/:familyId", authMiddleware, getFamilyTasks);
 
 export default router;
