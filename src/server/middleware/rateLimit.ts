@@ -8,7 +8,8 @@ interface BucketEntry {
 interface RateLimitOptions {
   limit: number;
   windowMs: number;
-  keyName: string;
+  /** Human-readable name for the user-facing 429 message. */
+  displayName: string;
 }
 
 /**
@@ -17,9 +18,12 @@ interface RateLimitOptions {
  * not a global cost ceiling. Auth middleware must run first; req.user.uid
  * is the bucket key. Falls open (no limit) if uid is missing rather than
  * leaking 429s on misconfigured chains.
+ *
+ * The bucket map prunes one expired entry per request to bound memory
+ * to roughly the active-user count over a window.
  */
 export const createRateLimiter = (options: RateLimitOptions) => {
-  const { limit, windowMs, keyName } = options;
+  const { limit, windowMs, displayName } = options;
   const buckets = new Map<string, BucketEntry>();
 
   return (req: Request, res: Response, next: NextFunction) => {
@@ -30,6 +34,18 @@ export const createRateLimiter = (options: RateLimitOptions) => {
     }
 
     const now = Date.now();
+
+    // Opportunistic prune of one expired entry per request, bounding
+    // the map to ~active-user count even over long-running processes.
+    if (buckets.size > 1) {
+      for (const [otherUid, otherEntry] of buckets) {
+        if (otherUid !== uid && otherEntry.resetAt <= now) {
+          buckets.delete(otherUid);
+          break;
+        }
+      }
+    }
+
     let entry = buckets.get(uid);
     if (!entry || now >= entry.resetAt) {
       entry = { count: 0, resetAt: now + windowMs };
@@ -47,7 +63,7 @@ export const createRateLimiter = (options: RateLimitOptions) => {
       const retryAfterSeconds = Math.max(1, Math.ceil((entry.resetAt - now) / 1000));
       res.setHeader("Retry-After", String(retryAfterSeconds));
       return res.status(429).json({
-        error: `Too many ${keyName} requests. Try again in ${retryAfterSeconds} seconds.`,
+        error: `Too many ${displayName} requests. Try again in ${retryAfterSeconds} seconds.`,
       });
     }
 
@@ -73,5 +89,5 @@ const GEMINI_WINDOW_MS = parseIntEnv(process.env.GEMINI_RATE_LIMIT_WINDOW_MS, 60
 export const geminiRateLimit = createRateLimiter({
   limit: GEMINI_LIMIT,
   windowMs: GEMINI_WINDOW_MS,
-  keyName: "AI analysis",
+  displayName: "AI analysis",
 });
