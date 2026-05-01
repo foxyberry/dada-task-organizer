@@ -72,7 +72,10 @@ service cloud.firestore {
     }
 
     match /invites/{inviteId} {
-      allow read: if isAuthenticated(); // Clients validate codes during join flow
+      // Invite codes are bearer tokens. The /family/join backend route
+      // validates them via the Admin SDK; clients never query this
+      // collection directly. Denying read removes an enumeration path.
+      allow read: if false;
       allow write: if false; // Backend-only via Admin SDK
     }
   }
