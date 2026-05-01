@@ -26,14 +26,26 @@ async function getAuthHeaders() {
   };
 }
 
+const detectTimezone = (): string | undefined => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 export async function analyzeAndCreateTask(
   payload: AnalyzeAndCreateTaskRequest
 ): Promise<AnalyzeAndCreateTaskResponse> {
   const headers = await getAuthHeaders();
+  const body: AnalyzeAndCreateTaskRequest = {
+    timezone: detectTimezone(),
+    ...payload,
+  };
   const response = await fetch("/api/tasks/analyze-and-create", {
     method: "POST",
     headers,
-    body: JSON.stringify(payload),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {

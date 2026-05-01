@@ -3,6 +3,14 @@ import type { AIAnalysisResult, ShoppingItem } from "../shared/geminiTypes.js";
 
 export type { AIAnalysisResult, ShoppingItem };
 
+const detectTimezone = (): string | undefined => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 export async function analyzeTask(
   input: string,
   categories: string[]
@@ -17,7 +25,7 @@ export async function analyzeTask(
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ input, categories }),
+    body: JSON.stringify({ input, categories, timezone: detectTimezone() }),
   });
 
   if (!response.ok) {

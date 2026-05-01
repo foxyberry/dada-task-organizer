@@ -4,7 +4,7 @@ import * as taskService from "../services/taskService.js";
 
 export const analyzeAndCreateTask = async (req: Request, res: Response) => {
   try {
-    const { input, familyId } = req.body;
+    const { input, familyId, timezone } = req.body;
     // @ts-ignore
     const user = req.user;
 
@@ -16,10 +16,19 @@ export const analyzeAndCreateTask = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Family ID must be a string" });
     }
 
+    let resolvedTimezone: string | undefined;
+    if (timezone !== undefined && timezone !== null) {
+      if (typeof timezone !== "string" || timezone.length > 64) {
+        return res.status(400).json({ error: "Timezone must be a string up to 64 characters" });
+      }
+      resolvedTimezone = timezone;
+    }
+
     const task = await taskService.analyzeAndCreateTask({
       input,
       familyId: familyId ?? null,
       userId: user.uid,
+      timezone: resolvedTimezone,
     });
 
     res.status(201).json(task);

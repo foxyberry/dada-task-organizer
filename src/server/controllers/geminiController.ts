@@ -3,7 +3,7 @@ import { analyzeTaskWithGemini } from "../services/geminiService.js";
 
 export const analyzeTask = async (req: Request, res: Response) => {
   try {
-    const { input, categories } = req.body;
+    const { input, categories, timezone } = req.body;
 
     if (typeof input !== "string" || input.trim().length === 0) {
       return res.status(400).json({ error: "Task input is required" });
@@ -27,7 +27,15 @@ export const analyzeTask = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Category names must be 100 characters or fewer" });
     }
 
-    const result = await analyzeTaskWithGemini(trimmedInput, normalizedCategories);
+    let resolvedTimezone: string | undefined;
+    if (timezone !== undefined && timezone !== null) {
+      if (typeof timezone !== "string" || timezone.length > 64) {
+        return res.status(400).json({ error: "Timezone must be a string up to 64 characters" });
+      }
+      resolvedTimezone = timezone;
+    }
+
+    const result = await analyzeTaskWithGemini(trimmedInput, normalizedCategories, resolvedTimezone);
     res.status(200).json(result);
   } catch (error: any) {
     console.error("Error analyzing task:", error);
