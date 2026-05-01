@@ -24,6 +24,7 @@ interface AnalyzeAndCreateTaskParams {
   input: string;
   familyId?: string | null;
   userId: string;
+  timezone?: string;
 }
 
 interface CategoryRecord {
@@ -160,7 +161,8 @@ export const analyzeAndCreateTask = async (
 
   const analysis = await analyzeTaskWithGemini(
     title,
-    categories.map((category) => category.name)
+    categories.map((category) => category.name),
+    params.timezone
   );
 
   const category = selectCategory(analysis, categories);

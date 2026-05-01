@@ -146,8 +146,16 @@ function AppContent() {
 
     const checkReminders = () => {
       const now = new Date();
-      const todayStr = now.toISOString().split('T')[0];
-      const currentTimeStr = now.toTimeString().slice(0, 5); // HH:mm
+      // Both Gemini-written dueDate and reminderTime are in the user's
+      // local timezone, so the scheduler must compare in the same zone.
+      const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+      const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: userTz }).format(now);
+      const currentTimeStr = new Intl.DateTimeFormat('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: userTz,
+      }).format(now); // HH:mm
 
       tasks.forEach(task => {
         if (

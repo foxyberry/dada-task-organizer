@@ -26,14 +26,29 @@ async function getAuthHeaders() {
   };
 }
 
+const detectTimezone = (): string | undefined => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 export async function analyzeAndCreateTask(
   payload: AnalyzeAndCreateTaskRequest
 ): Promise<AnalyzeAndCreateTaskResponse> {
   const headers = await getAuthHeaders();
+  // Caller-provided timezone wins; otherwise auto-detect. Using nullish
+  // coalesce avoids the case where `payload.timezone === undefined` would
+  // clobber the auto-detected value via spread.
+  const body: AnalyzeAndCreateTaskRequest = {
+    ...payload,
+    timezone: payload.timezone ?? detectTimezone(),
+  };
   const response = await fetch("/api/tasks/analyze-and-create", {
     method: "POST",
     headers,
-    body: JSON.stringify(payload),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {

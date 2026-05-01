@@ -17,7 +17,6 @@ import {
   getFamilyTasks,
   updateTask,
 } from "../controllers/taskController.js";
-import { analyzeTask } from "../controllers/geminiController.js";
 import { authMiddleware } from "../middleware/auth.js";
 
 const router = Router();
@@ -36,7 +35,6 @@ router.post("/categories", authMiddleware, createCategory);
 router.delete("/categories/:categoryId", authMiddleware, deleteCategory);
 
 // Task routes
-router.post("/analyze-task", authMiddleware, analyzeTask);
 router.post("/tasks/analyze-and-create", authMiddleware, analyzeAndCreateTask);
 router.post("/tasks/shared", authMiddleware, createSharedTask);
 router.patch("/tasks/:taskId", authMiddleware, updateTask);

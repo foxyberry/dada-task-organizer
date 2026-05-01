@@ -11,20 +11,48 @@ const getGeminiClient = () => {
   return new GoogleGenAI({ apiKey });
 };
 
+const FALLBACK_TIMEZONE = "UTC";
+
+const resolveTimezone = (timezone: string | undefined): string => {
+  if (!timezone) {
+    return FALLBACK_TIMEZONE;
+  }
+
+  try {
+    // Intl.DateTimeFormat throws RangeError on invalid IANA names.
+    new Intl.DateTimeFormat("en-CA", { timeZone: timezone });
+    return timezone;
+  } catch {
+    return FALLBACK_TIMEZONE;
+  }
+};
+
+const formatDateInZone = (date: Date, timezone: string): string =>
+  // 'en-CA' returns YYYY-MM-DD which matches the dueDate schema.
+  new Intl.DateTimeFormat("en-CA", { timeZone: timezone }).format(date);
+
+const formatWeekdayInZone = (date: Date, timezone: string): string =>
+  new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone: timezone }).format(date);
+
 export async function analyzeTaskWithGemini(
   input: string,
-  categories: string[]
+  categories: string[],
+  timezone?: string
 ): Promise<AIAnalysisResult> {
   const model = "gemini-3-flash-preview";
+  const resolvedTz = resolveTimezone(timezone);
   const now = new Date();
-  const todayStr = now.toISOString().split("T")[0];
+  const todayStr = formatDateInZone(now, resolvedTz);
+  const weekday = formatWeekdayInZone(now, resolvedTz);
 
   const prompt = `
     Analyze the following task or thought and categorize it into one of the provided categories.
     Also, assign a priority from 1 (Low) to 5 (High) based on its urgency and importance.
 
     CRITICAL:
-    1. Extract any mentioned date and time.
+    1. Extract any mentioned date and time. Interpret relative dates ("today", "tomorrow", "next Monday") and clock times in the user's local timezone (${resolvedTz}).
+       - Return dueDate in YYYY-MM-DD as the calendar date in ${resolvedTz}.
+       - Return reminderTime in 24-hour HH:mm as the wall-clock time in ${resolvedTz}.
     2. Detect if this is a shopping list or grocery-related request (e.g., "buy milk", "need eggs", "shopping list").
     3. If it is a shopping list:
        - Set isShoppingList to true.
@@ -32,7 +60,8 @@ export async function analyzeTaskWithGemini(
        - Categorize each item into groups like "신선식품" (Fresh), "공산품" (General), "생활용품" (Household), etc.
        - Set checked to false for all items.
 
-    - Today's date is ${todayStr}.
+    - User's timezone: ${resolvedTz}
+    - Today's date in that timezone: ${todayStr} (${weekday})
     - Task/Thought: "${input}"
     - Available Categories: ${categories.join(", ")}
 
@@ -62,12 +91,12 @@ export async function analyzeTaskWithGemini(
           },
           dueDate: {
             type: Type.STRING,
-            description: "Extracted date in YYYY-MM-DD format, or null.",
+            description: "Extracted date in YYYY-MM-DD format (in the user's timezone), or null.",
             nullable: true,
           },
           reminderTime: {
             type: Type.STRING,
-            description: "Extracted time in HH:mm format, or null.",
+            description: "Extracted time in HH:mm format (in the user's timezone), or null.",
             nullable: true,
           },
           isShoppingList: {

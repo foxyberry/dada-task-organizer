@@ -20,6 +20,7 @@ export interface TaskRecord {
 export interface AnalyzeAndCreateTaskRequest {
   input: string;
   familyId?: string | null;
+  timezone?: string; // IANA timezone, e.g. "Asia/Seoul"
 }
 
 export type AnalyzeAndCreateTaskResponse = TaskRecord;
