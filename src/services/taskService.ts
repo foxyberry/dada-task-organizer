@@ -38,9 +38,12 @@ export async function analyzeAndCreateTask(
   payload: AnalyzeAndCreateTaskRequest
 ): Promise<AnalyzeAndCreateTaskResponse> {
   const headers = await getAuthHeaders();
+  // Caller-provided timezone wins; otherwise auto-detect. Using nullish
+  // coalesce avoids the case where `payload.timezone === undefined` would
+  // clobber the auto-detected value via spread.
   const body: AnalyzeAndCreateTaskRequest = {
-    timezone: detectTimezone(),
     ...payload,
+    timezone: payload.timezone ?? detectTimezone(),
   };
   const response = await fetch("/api/tasks/analyze-and-create", {
     method: "POST",
