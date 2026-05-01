@@ -40,7 +40,6 @@ export const analyzeAndCreateTask = async (req: Request, res: Response) => {
 
 export const createSharedTask = async (req: Request, res: Response) => {
   try {
-    // @ts-ignore
     const user = req.user;
     const taskData = { ...req.body, userId: user.uid };
 
@@ -56,7 +55,6 @@ export const updateTask = async (req: Request, res: Response) => {
   try {
     const { taskId } = req.params;
     const updates = req.body as UpdateTaskRequest;
-    // @ts-ignore
     const user = req.user;
 
     if (!taskId) {
@@ -75,7 +73,6 @@ export const updateTask = async (req: Request, res: Response) => {
 export const deleteTask = async (req: Request, res: Response) => {
   try {
     const { taskId } = req.params;
-    // @ts-ignore
     const user = req.user;
 
     if (!taskId) {
@@ -95,7 +92,6 @@ export const deleteTask = async (req: Request, res: Response) => {
 export const getFamilyTasks = async (req: Request, res: Response) => {
   try {
     const { familyId } = req.params;
-    // @ts-ignore
     const user = req.user;
 
     if (!familyId) {

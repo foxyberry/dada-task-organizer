@@ -4,7 +4,6 @@ import * as familyService from "../services/familyService.js";
 export const createFamily = async (req: Request, res: Response) => {
   try {
     const { name } = req.body;
-    // @ts-ignore
     const user = req.user;
 
     if (!name) {
@@ -22,7 +21,6 @@ export const createFamily = async (req: Request, res: Response) => {
 export const generateInvite = async (req: Request, res: Response) => {
   try {
     const { familyId } = req.body;
-    // @ts-ignore
     const user = req.user;
 
     if (!familyId) {
@@ -45,7 +43,6 @@ export const generateInvite = async (req: Request, res: Response) => {
 export const joinFamily = async (req: Request, res: Response) => {
   try {
     const { code } = req.body;
-    // @ts-ignore
     const user = req.user;
 
     if (!code) {
@@ -62,7 +59,6 @@ export const joinFamily = async (req: Request, res: Response) => {
 
 export const getMyFamilies = async (req: Request, res: Response) => {
   try {
-    // @ts-ignore
     const user = req.user;
     const families = await familyService.getUserFamilyGroups(user.uid);
     res.status(200).json(families);

@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 
 export const getProfile = async (req: Request, res: Response) => {
   try {
-    // @ts-ignore
     const user = req.user;
     res.json({
       uid: user.uid,

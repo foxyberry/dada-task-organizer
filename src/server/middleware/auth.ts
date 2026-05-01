@@ -17,7 +17,6 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
   try {
     console.log(`[AuthMiddleware] Verifying token for project: ${adminAuth.app.options.projectId}`);
     const decodedToken = await adminAuth.verifyIdToken(idToken);
-    // @ts-ignore
     req.user = decodedToken;
     next();
   } catch (error) {

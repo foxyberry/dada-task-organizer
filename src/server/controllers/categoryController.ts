@@ -4,7 +4,6 @@ import * as categoryService from "../services/categoryService.js";
 export const createCategory = async (req: Request, res: Response) => {
   try {
     const { name, familyId } = req.body;
-    // @ts-ignore
     const user = req.user;
 
     if (typeof name !== "string" || name.trim().length === 0) {
@@ -26,7 +25,6 @@ export const createCategory = async (req: Request, res: Response) => {
 export const deleteCategory = async (req: Request, res: Response) => {
   try {
     const { categoryId } = req.params;
-    // @ts-ignore
     const user = req.user;
 
     if (!categoryId) {

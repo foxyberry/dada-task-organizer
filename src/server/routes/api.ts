@@ -18,6 +18,7 @@ import {
   updateTask,
 } from "../controllers/taskController.js";
 import { authMiddleware } from "../middleware/auth.js";
+import { geminiRateLimit } from "../middleware/rateLimit.js";
 
 const router = Router();
 
@@ -35,7 +36,7 @@ router.post("/categories", authMiddleware, createCategory);
 router.delete("/categories/:categoryId", authMiddleware, deleteCategory);
 
 // Task routes
-router.post("/tasks/analyze-and-create", authMiddleware, analyzeAndCreateTask);
+router.post("/tasks/analyze-and-create", authMiddleware, geminiRateLimit, analyzeAndCreateTask);
 router.post("/tasks/shared", authMiddleware, createSharedTask);
 router.patch("/tasks/:taskId", authMiddleware, updateTask);
 router.delete("/tasks/:taskId", authMiddleware, deleteTask);
