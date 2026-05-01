@@ -1,0 +1,51 @@
+name: Firestore Rules Tests
+
+on:
+  pull_request:
+    paths:
+      - 'firestore.rules'
+      - 'tests/rules/**'
+      - 'vitest.rules.config.ts'
+      - 'firebase.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/firestore-rules-test.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'firestore.rules'
+      - 'tests/rules/**'
+      - 'vitest.rules.config.ts'
+      - 'firebase.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/firestore-rules-test.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: rules-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rules:
+    name: firestore.rules emulator suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Firestore rules tests
+        run: npm run test:rules
