@@ -27,7 +27,6 @@ export const createRateLimiter = (options: RateLimitOptions) => {
   const buckets = new Map<string, BucketEntry>();
 
   return (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore — set by authMiddleware
     const uid: string | undefined = req.user?.uid;
     if (!uid) {
       return next();
