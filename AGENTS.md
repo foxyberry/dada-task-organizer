@@ -64,6 +64,14 @@ npm run lint
 npm audit --audit-level=low
 ```
 
+When changing `firestore.rules`, also run the rules test suite (requires JDK 21+ on `PATH` for the Firebase emulator):
+
+```bash
+npm run test:rules
+```
+
+If the emulator fails to start with `UnsupportedClassVersionError` or "Java version before 21", install a newer JDK (e.g. `brew install openjdk@21`). The emulator block in `firebase.json` configures the *default* Firestore database used by the test SDK; the production named database (`task-organizer-main`) is unrelated to the test harness.
+
 ## Working Rules
 
 - Before implementation work, make sure there is a GitHub issue that represents the task.
