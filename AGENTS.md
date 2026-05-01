@@ -64,6 +64,12 @@ npm run lint
 npm audit --audit-level=low
 ```
 
+When changing `firestore.rules`, also run the rules test suite (requires JDK 21+ on `PATH` for the Firebase emulator):
+
+```bash
+npm run test:rules
+```
+
 ## Working Rules
 
 - Before implementation work, make sure there is a GitHub issue that represents the task.
