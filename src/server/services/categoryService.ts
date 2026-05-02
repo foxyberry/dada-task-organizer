@@ -5,19 +5,19 @@ import { adminDb } from "../firebaseAdmin.js";
 const ensureFamilyMembership = async (familyId: string, userId: string) => {
   const familyDoc = await adminDb.collection("familyGroups").doc(familyId).get();
   if (!familyDoc.exists) {
-    throw new Error("Family group not found");
+    throw new Error("가족 그룹을 찾을 수 없습니다");
   }
 
   const familyData = familyDoc.data();
   if (!familyData?.members.includes(userId)) {
-    throw new Error("User is not a member of this family group");
+    throw new Error("해당 가족 그룹의 멤버가 아닙니다");
   }
 };
 
 const getCategoryById = async (categoryId: string): Promise<CategoryRecord> => {
   const categoryDoc = await adminDb.collection("categories").doc(categoryId).get();
   if (!categoryDoc.exists) {
-    throw new Error("Category not found");
+    throw new Error("카테고리를 찾을 수 없습니다");
   }
 
   return {
@@ -33,11 +33,11 @@ export const createCategory = async (
 ): Promise<CategoryRecord> => {
   const trimmedName = name.trim();
   if (!trimmedName) {
-    throw new Error("Category name is required");
+    throw new Error("카테고리 이름을 입력해주세요");
   }
 
   if (trimmedName.length > 100) {
-    throw new Error("Category name must be 100 characters or fewer");
+    throw new Error("카테고리 이름은 100자 이하로 입력해주세요");
   }
 
   if (familyId) {
@@ -73,12 +73,12 @@ export const createCategory = async (
 
 export const deleteCategory = async (categoryId: string, userId: string) => {
   if (!categoryId) {
-    throw new Error("Category ID is required");
+    throw new Error("카테고리 ID가 필요합니다");
   }
 
   const category = await getCategoryById(categoryId);
   if (category.userId !== userId) {
-    throw new Error("Only the category owner can delete this category");
+    throw new Error("카테고리 삭제는 작성자만 가능합니다");
   }
 
   const tasksSnapshot = await adminDb.collection("tasks").where("categoryId", "==", categoryId).get();

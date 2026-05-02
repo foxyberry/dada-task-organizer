@@ -26,15 +26,7 @@ class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      let errorMessage = "알 수 없는 오류가 발생했습니다.";
-      try {
-        const parsedError = JSON.parse(this.state.error?.message || "{}");
-        if (parsedError.error) {
-          errorMessage = `Firestore 오류: ${parsedError.error}`;
-        }
-      } catch (e) {
-        errorMessage = this.state.error?.message || errorMessage;
-      }
+      const errorMessage = this.state.error?.message || "알 수 없는 오류가 발생했습니다.";
 
       return (
         <div className="min-h-screen bg-stone-50 flex items-center justify-center p-6 text-center">

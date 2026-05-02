@@ -37,7 +37,7 @@ interface CategoryRecord {
 const getTaskById = async (taskId: string) => {
   const taskDoc = await adminDb.collection("tasks").doc(taskId).get();
   if (!taskDoc.exists) {
-    throw new Error("Task not found");
+    throw new Error("할 일을 찾을 수 없습니다");
   }
 
   return {
@@ -65,11 +65,11 @@ const canDeleteTask = async (task: TaskRecord, userId: string) => {
 
 const validateShoppingItems = (shoppingItems: UpdateTaskRequest["shoppingItems"]) => {
   if (!Array.isArray(shoppingItems)) {
-    throw new Error("Shopping items must be an array");
+    throw new Error("쇼핑 목록 형식이 올바르지 않습니다");
   }
 
   if (shoppingItems.length > 200) {
-    throw new Error("Shopping items must contain 200 items or fewer");
+    throw new Error("쇼핑 목록은 최대 200개까지 가능합니다");
   }
 
   for (const item of shoppingItems) {
@@ -79,15 +79,15 @@ const validateShoppingItems = (shoppingItems: UpdateTaskRequest["shoppingItems"]
       typeof item.category !== "string" ||
       typeof item.checked !== "boolean"
     ) {
-      throw new Error("Shopping items must include name, category, and checked");
+      throw new Error("쇼핑 항목에 이름, 카테고리, 체크 여부가 필요합니다");
     }
 
     if (item.name.trim().length === 0 || item.name.length > 200) {
-      throw new Error("Shopping item names must be between 1 and 200 characters");
+      throw new Error("쇼핑 항목 이름은 1~200자여야 합니다");
     }
 
     if (item.category.trim().length === 0 || item.category.length > 100) {
-      throw new Error("Shopping item categories must be between 1 and 100 characters");
+      throw new Error("쇼핑 항목 카테고리는 1~100자여야 합니다");
     }
   }
 };
@@ -95,12 +95,12 @@ const validateShoppingItems = (shoppingItems: UpdateTaskRequest["shoppingItems"]
 const ensureFamilyMembership = async (familyId: string, userId: string) => {
   const familyDoc = await adminDb.collection("familyGroups").doc(familyId).get();
   if (!familyDoc.exists) {
-    throw new Error("Family group not found");
+    throw new Error("가족 그룹을 찾을 수 없습니다");
   }
 
   const familyData = familyDoc.data();
   if (!familyData?.members.includes(userId)) {
-    throw new Error("User is not a member of this family group");
+    throw new Error("해당 가족 그룹의 멤버가 아닙니다");
   }
 };
 
@@ -139,15 +139,15 @@ export const analyzeAndCreateTask = async (
   const title = params.input.trim();
 
   if (!title) {
-    throw new Error("Task input is required");
+    throw new Error("할 일 내용을 입력해주세요");
   }
 
   if (title.length > 500) {
-    throw new Error("Task input must be 500 characters or fewer");
+    throw new Error("할 일 내용은 500자 이하로 입력해주세요");
   }
 
   if (params.familyId && typeof params.familyId !== "string") {
-    throw new Error("Family ID must be a string");
+    throw new Error("Family ID가 올바르지 않습니다");
   }
 
   if (params.familyId) {
@@ -156,7 +156,7 @@ export const analyzeAndCreateTask = async (
 
   const categories = await getCategoriesForScope(params.userId, params.familyId);
   if (categories.length === 0) {
-    throw new Error("Create at least one category before adding tasks");
+    throw new Error("할 일을 추가하려면 먼저 카테고리를 만들어주세요");
   }
 
   const analysis = await analyzeTaskWithGemini(
@@ -193,20 +193,20 @@ export const updateTask = async (
   userId: string
 ): Promise<TaskRecord> => {
   if (!taskId) {
-    throw new Error("Task ID is required");
+    throw new Error("할 일 ID가 필요합니다");
   }
 
   const allowedKeys = Object.keys(updates);
   if (allowedKeys.length === 0) {
-    throw new Error("At least one field must be provided");
+    throw new Error("수정할 항목을 입력해주세요");
   }
 
   if (allowedKeys.some((key) => !["status", "shoppingItems"].includes(key))) {
-    throw new Error("Only status and shoppingItems can be updated");
+    throw new Error("수정 가능한 항목은 상태와 쇼핑 목록입니다");
   }
 
   if (updates.status !== undefined && !["pending", "completed"].includes(updates.status)) {
-    throw new Error("Status must be pending or completed");
+    throw new Error("상태는 pending 또는 completed여야 합니다");
   }
 
   if (updates.shoppingItems !== undefined) {
@@ -216,7 +216,7 @@ export const updateTask = async (
   const task = await getTaskById(taskId);
   const canUpdate = await canUpdateTask(task, userId);
   if (!canUpdate) {
-    throw new Error("Access denied");
+    throw new Error("접근 권한이 없습니다");
   }
 
   const nextTask = {
@@ -233,13 +233,13 @@ export const updateTask = async (
 
 export const deleteTask = async (taskId: string, userId: string) => {
   if (!taskId) {
-    throw new Error("Task ID is required");
+    throw new Error("할 일 ID가 필요합니다");
   }
 
   const task = await getTaskById(taskId);
   const canDelete = await canDeleteTask(task, userId);
   if (!canDelete) {
-    throw new Error("Only the task owner can delete this task");
+    throw new Error("할 일 삭제는 작성자만 가능합니다");
   }
 
   await adminDb.collection("tasks").doc(taskId).delete();
@@ -248,29 +248,29 @@ export const deleteTask = async (taskId: string, userId: string) => {
 export const createSharedTask = async (params: CreateTaskParams) => {
   // 1. Basic Validation
   if (!params.title || params.title.trim().length === 0) {
-    throw new Error("Task title is required");
+    throw new Error("할 일 제목을 입력해주세요");
   }
 
   if (!params.categoryId) {
-    throw new Error("Category ID is required");
+    throw new Error("카테고리 ID가 필요합니다");
   }
 
   // 2. AI Data Validation
   if (typeof params.priority !== "number" || params.priority < 1 || params.priority > 5) {
-    throw new Error("Priority must be a number between 1 and 5");
+    throw new Error("우선순위는 1~5 사이의 숫자여야 합니다");
   }
 
   if (!params.aiReasoning || params.aiReasoning.trim().length === 0) {
-    throw new Error("AI reasoning is required for shared tasks");
+    throw new Error("AI 분석 결과가 필요합니다");
   }
 
   // 3. Date/Time Validation (Simple regex check)
   if (params.dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(params.dueDate)) {
-    throw new Error("Invalid due date format (YYYY-MM-DD)");
+    throw new Error("날짜 형식이 올바르지 않습니다 (YYYY-MM-DD)");
   }
 
   if (params.reminderTime && !/^\d{2}:\d{2}$/.test(params.reminderTime)) {
-    throw new Error("Invalid reminder time format (HH:mm)");
+    throw new Error("시간 형식이 올바르지 않습니다 (HH:mm)");
   }
 
   // 4. Family Membership Validation (if familyId is provided)
@@ -295,11 +295,11 @@ export const getTasksByFamily = async (familyId: string, userId: string) => {
     // Verify membership
     const familyDoc = await adminDb.collection("familyGroups").doc(familyId).get();
     if (!familyDoc.exists) {
-      throw new Error("Family group not found");
+      throw new Error("가족 그룹을 찾을 수 없습니다");
     }
     const familyData = familyDoc.data();
     if (!familyData?.members.includes(userId)) {
-      throw new Error("Access denied: You are not a member of this group");
+      throw new Error("해당 가족 그룹의 멤버가 아닙니다");
     }
 
     const snapshot = await adminDb

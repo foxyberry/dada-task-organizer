@@ -14,7 +14,7 @@ export const apiService = {
   async getProfile() {
     const headers = await getAuthHeaders();
     const response = await fetch("/api/profile", { headers });
-    if (!response.ok) throw new Error("Failed to fetch profile");
+    if (!response.ok) throw new Error("프로필 조회에 실패했습니다");
     return response.json();
   },
 
@@ -23,17 +23,7 @@ export const apiService = {
     const response = await fetch("/api/families", { headers });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      if (errorData.error) {
-        try {
-          const detail = JSON.parse(errorData.error);
-          if (detail.authInfo) {
-            throw new Error(`Firestore Access Denied: ${detail.operationType} on ${detail.path}. User: ${detail.authInfo.email}`);
-          }
-        } catch (e) {
-          throw new Error(errorData.error);
-        }
-      }
-      throw new Error("Failed to fetch families");
+      throw new Error(errorData.error || "가족 그룹 조회에 실패했습니다");
     }
     return response.json();
   },
@@ -45,7 +35,10 @@ export const apiService = {
       headers,
       body: JSON.stringify({ name }),
     });
-    if (!response.ok) throw new Error("Failed to create family group");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "가족 그룹 생성에 실패했습니다");
+    }
     return response.json();
   },
 
@@ -56,7 +49,10 @@ export const apiService = {
       headers,
       body: JSON.stringify({ familyId }),
     });
-    if (!response.ok) throw new Error("Failed to generate invite code");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "초대 코드 생성에 실패했습니다");
+    }
     return response.json();
   },
 
@@ -68,8 +64,8 @@ export const apiService = {
       body: JSON.stringify({ code }),
     });
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "Failed to join family group");
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || "가족 그룹 참여에 실패했습니다");
     }
     return response.json();
   },

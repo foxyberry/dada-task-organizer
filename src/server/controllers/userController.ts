@@ -11,6 +11,6 @@ export const getProfile = async (req: Request, res: Response) => {
       isPremium: true,
     });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch profile" });
+    res.status(500).json({ error: "프로필 조회에 실패했습니다" });
   }
 };
