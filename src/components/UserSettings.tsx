@@ -10,8 +10,8 @@ import {
   Bell,
   BellOff,
 } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
 import { User } from "firebase/auth";
+import { Modal } from "./Modal.js";
 
 interface UserSettingsProps {
   user: User;
@@ -44,22 +44,7 @@ export const UserSettings: React.FC<UserSettingsProps> = ({
   };
 
   return (
-    <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-      >
-        <motion.div
-          className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
-          initial={{ y: 40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 40, opacity: 0 }}
-          transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          onClick={(e) => e.stopPropagation()}
-        >
+    <Modal onClose={onClose} maxWidth="max-w-md">
           {/* Header */}
           <div className="p-6 border-b border-stone-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -185,8 +170,6 @@ export const UserSettings: React.FC<UserSettingsProps> = ({
               )}
             </section>
           </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+    </Modal>
   );
 };
