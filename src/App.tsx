@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Routes, Route, Link } from 'react-router-dom';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
+import { TermsOfService } from './components/TermsOfService';
 import { 
   GoogleAuthProvider, 
   signInWithPopup, 
@@ -111,9 +114,15 @@ interface Task {
 
 export default function App() {
   return (
-    <FamilyProvider>
-      <AppContent />
-    </FamilyProvider>
+    <Routes>
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsOfService />} />
+      <Route path="/*" element={
+        <FamilyProvider>
+          <AppContent />
+        </FamilyProvider>
+      } />
+    </Routes>
   );
 }
 
@@ -852,6 +861,8 @@ function AppContent() {
             <div className="w-2 h-2 rounded-full bg-blue-500" />
             Cloud Synced
           </span>
+          <Link to="/privacy" className="hover:text-stone-600 transition-colors">Privacy</Link>
+          <Link to="/terms" className="hover:text-stone-600 transition-colors">Terms</Link>
         </div>
       </footer>
 
