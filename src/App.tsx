@@ -851,7 +851,7 @@ function AppContent() {
 
       {/* Footer Info */}
       <footer className="max-w-4xl mx-auto px-6 py-12 border-t border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-stone-400 text-xs uppercase tracking-widest font-bold">
-        <p>© 2026 AI Task Organizer</p>
+        <p>© 2026 Dada Task Organizer</p>
         <div className="flex items-center gap-6">
           <span className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-green-500" />

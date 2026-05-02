@@ -2,14 +2,20 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
+const CONTACT_EMAIL = "jjakmi@gmail.com";
+
 export const TermsOfService: React.FC = () => {
   const navigate = useNavigate();
+  const handleBack = () => {
+    if ((window.history.state?.idx ?? 0) > 0) navigate(-1);
+    else navigate("/");
+  };
 
   return (
     <div className="min-h-screen bg-stone-50">
       <div className="max-w-2xl mx-auto px-6 py-12">
         <button
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           className="flex items-center gap-2 text-sm text-stone-500 hover:text-stone-900 transition-colors mb-8"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -19,7 +25,7 @@ export const TermsOfService: React.FC = () => {
         <h1 className="text-3xl font-serif italic text-stone-900 mb-2">이용약관</h1>
         <p className="text-xs text-stone-400 uppercase tracking-widest font-bold mb-10">Terms of Service</p>
 
-        <div className="prose prose-stone max-w-none space-y-8 text-sm text-stone-700 leading-relaxed">
+        <div className="space-y-8 text-sm text-stone-700 leading-relaxed">
           <section>
             <p className="text-stone-500">최종 업데이트: 2026년 5월 2일</p>
           </section>
@@ -75,7 +81,7 @@ export const TermsOfService: React.FC = () => {
 
           <section className="space-y-3">
             <h2 className="text-base font-bold text-stone-900">9. 문의</h2>
-            <p className="font-mono text-stone-600">jjakmi@gmail.com</p>
+            <p className="font-mono text-stone-600">{CONTACT_EMAIL}</p>
           </section>
         </div>
       </div>
