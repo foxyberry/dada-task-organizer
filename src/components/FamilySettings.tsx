@@ -11,7 +11,8 @@ import {
   User as UserIcon,
   Loader2
 } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import { Modal } from "./Modal.js";
 import { toast } from "sonner";
 import { auth } from "../firebase.js";
 
@@ -69,17 +70,7 @@ export const FamilySettings: React.FC<FamilySettingsProps> = ({ onClose }) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div 
-        className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
-        onClick={e => e.stopPropagation()}
-      >
+    <Modal onClose={onClose} maxWidth="max-w-2xl">
         <div className="p-6 border-b border-stone-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-stone-100 rounded-xl">
@@ -231,7 +222,6 @@ export const FamilySettings: React.FC<FamilySettingsProps> = ({ onClose }) => {
             )}
           </section>
         </div>
-      </div>
-    </motion.div>
+    </Modal>
   );
 };

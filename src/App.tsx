@@ -25,18 +25,20 @@ import {
   deleteTask as deleteTaskOnServer,
   updateTask as updateTaskOnServer,
 } from './services/taskService';
+import { apiService } from './services/apiService';
 import { useNotification } from './hooks/useNotification';
 import { FamilyProvider, useFamily } from './contexts/FamilyContext';
 import { FamilySettings } from './components/FamilySettings';
-import { 
-  Plus, 
-  Trash2, 
-  CheckCircle2, 
-  Circle, 
-  BrainCircuit, 
-  LogOut, 
-  LogIn, 
-  ChevronRight, 
+import { UserSettings } from './components/UserSettings';
+import {
+  Plus,
+  Trash2,
+  CheckCircle2,
+  Circle,
+  BrainCircuit,
+  LogOut,
+  LogIn,
+  ChevronRight,
   ChevronDown,
   AlertCircle,
   Loader2,
@@ -52,7 +54,8 @@ import {
   LayoutList,
   CheckSquare,
   Users,
-  Shield
+  Shield,
+  Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Toaster, toast } from 'sonner';
@@ -128,6 +131,7 @@ function AppContent() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [notifiedTasks, setNotifiedTasks] = useState<Set<string>>(new Set());
   const [showFamilySettings, setShowFamilySettings] = useState(false);
+  const [showUserSettings, setShowUserSettings] = useState(false);
   const [selectedFamilyId, setSelectedFamilyId] = useState<string | null>(null);
 
   const { families } = useFamily();
@@ -248,6 +252,16 @@ function AppContent() {
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("로그아웃에 실패했습니다.");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      await apiService.deleteAccount();
+      await signOut(auth);
+      toast.success("계정이 삭제되었습니다.");
+    } catch (error: any) {
+      toast.error(error.message || "계정 삭제에 실패했습니다.");
     }
   };
 
@@ -526,35 +540,12 @@ function AppContent() {
               Timeline
             </button>
           </div>
-          <button 
-            onClick={toggleNotifications}
-            className={cn(
-              "p-2 rounded-full transition-all relative",
-              notificationsEnabled ? "bg-stone-900 text-white" : "bg-stone-200 text-stone-500 hover:bg-stone-300"
-            )}
-            title={notificationsEnabled ? "알림 끄기" : "알림 켜기"}
-          >
-            <motion.div
-              initial={false}
-              animate={{ rotate: notificationsEnabled ? [0, -10, 10, -10, 10, 0] : 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              {notificationsEnabled ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
-            </motion.div>
-            {notificationsEnabled && (
-              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-stone-900" />
-            )}
-          </button>
-          <div className="hidden sm:block text-right">
-            <p className="text-xs text-stone-400 uppercase tracking-widest font-bold">User</p>
-            <p className="text-sm font-medium">{user.displayName}</p>
-          </div>
-          <button 
-            onClick={handleLogout}
+          <button
+            onClick={() => setShowUserSettings(true)}
             className="p-2 hover:bg-stone-200 rounded-full transition-colors"
-            title="로그아웃"
+            title="설정"
           >
-            <LogOut className="w-5 h-5 text-stone-500" />
+            <Settings className="w-5 h-5 text-stone-500" />
           </button>
         </div>
       </header>
@@ -867,6 +858,19 @@ function AppContent() {
       <AnimatePresence>
         {showFamilySettings && (
           <FamilySettings onClose={() => setShowFamilySettings(false)} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showUserSettings && (
+          <UserSettings
+            user={user}
+            onClose={() => setShowUserSettings(false)}
+            onLogout={handleLogout}
+            onDeleteAccount={handleDeleteAccount}
+            notificationsEnabled={notificationsEnabled}
+            onToggleNotifications={toggleNotifications}
+          />
         )}
       </AnimatePresence>
     </div>
