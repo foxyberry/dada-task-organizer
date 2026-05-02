@@ -44,6 +44,20 @@ export const createCategory = async (
     await ensureFamilyMembership(familyId, userId);
   }
 
+  // Duplicate check within the same scope (case-insensitive)
+  const scopeQuery = familyId
+    ? adminDb.collection("categories").where("familyId", "==", familyId)
+    : adminDb.collection("categories").where("userId", "==", userId).where("familyId", "==", null);
+
+  const existing = await scopeQuery.get();
+  const normalizedNew = trimmedName.toLowerCase();
+  const isDuplicate = existing.docs.some(
+    (doc) => (doc.data().name as string).trim().toLowerCase() === normalizedNew
+  );
+  if (isDuplicate) {
+    throw new Error("A category with this name already exists");
+  }
+
   const categoryRef = adminDb.collection("categories").doc();
   const category: CategoryRecord = {
     id: categoryRef.id,
