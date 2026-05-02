@@ -1,5 +1,5 @@
-
 import { adminAuth } from "../firebaseAdmin.js";
+import logger from "./logger.js";
 
 export interface FirestoreErrorInfo {
   error: string;
@@ -36,7 +36,7 @@ export const handleFirestoreError = async (error: any, operationType: FirestoreE
           email: p.email || ''
         }));
       } catch (authErr) {
-        console.error("Error fetching user info for error report:", authErr);
+        logger.error({ err: authErr }, "Error fetching user info for error report");
       }
     }
 

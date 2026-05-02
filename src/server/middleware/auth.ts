@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { adminAuth } from "../firebaseAdmin.js";
+import logger from "../utils/logger.js";
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
@@ -15,12 +16,11 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
   }
 
   try {
-    console.log(`[AuthMiddleware] Verifying token for project: ${adminAuth.app.options.projectId}`);
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     req.user = decodedToken;
     next();
   } catch (error) {
-    console.error("Error verifying Firebase ID token:", error);
+    logger.error({ err: error }, "Error verifying Firebase ID token");
     return res.status(401).json({ error: "Unauthorized: Invalid token" });
   }
 };

@@ -3,6 +3,7 @@ import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 import dotenv from "dotenv";
 import fs from "fs";
+import logger from "./utils/logger.js";
 
 dotenv.config({ path: ".env" });
 dotenv.config({ path: ".env.local", override: true });
@@ -11,7 +12,7 @@ const projectId = process.env.FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PR
 const dbId = process.env.FIREBASE_FIRESTORE_DATABASE_ID || process.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || "(default)";
 
 if (!projectId) {
-  console.warn("[FirebaseAdmin] FIREBASE_PROJECT_ID or GOOGLE_CLOUD_PROJECT should be set explicitly.");
+  logger.warn("FIREBASE_PROJECT_ID or GOOGLE_CLOUD_PROJECT should be set explicitly.");
 }
 
 if (projectId) {
@@ -24,8 +25,8 @@ let app: any;
 
 if (!getApps().length) {
   const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
-  
-  console.log(`[FirebaseAdmin] Initializing app with projectId: ${projectId}`);
+
+  logger.info({ projectId }, "Initializing Firebase Admin SDK");
 
   if (serviceAccount && serviceAccount.startsWith('{')) {
     try {
@@ -34,13 +35,13 @@ if (!getApps().length) {
         credential: cert(parsedAccount),
         projectId: projectId,
       });
-      console.log("[FirebaseAdmin] Initialized with Service Account JSON");
+      logger.info("Firebase Admin initialized with Service Account JSON");
     } catch (e) {
-      console.error("[FirebaseAdmin] Failed to parse FIREBASE_SERVICE_ACCOUNT as JSON:", e);
+      logger.error({ err: e }, "Failed to parse FIREBASE_SERVICE_ACCOUNT as JSON");
       throw e;
     }
-  } 
-  
+  }
+
   if (!app && serviceAccount && !serviceAccount.startsWith('{')) {
     if (!fs.existsSync(serviceAccount)) {
       throw new Error("FIREBASE_SERVICE_ACCOUNT file path does not exist");
@@ -51,15 +52,15 @@ if (!getApps().length) {
         credential: cert(serviceAccount),
         projectId: projectId,
       });
-      console.log("[FirebaseAdmin] Initialized with Service Account File");
+      logger.info("Firebase Admin initialized with Service Account File");
     } catch (e) {
-      console.error("[FirebaseAdmin] Failed to initialize with SA file:", e);
+      logger.error({ err: e }, "Failed to initialize Firebase Admin with SA file");
       throw e;
     }
   }
 
   if (!app) {
-    console.log("[FirebaseAdmin] Initializing with Application Default Credentials");
+    logger.info("Firebase Admin initializing with Application Default Credentials");
     app = initializeApp({
       projectId: projectId,
     });
@@ -69,6 +70,6 @@ if (!getApps().length) {
 }
 
 export const adminAuth = getAuth(app);
-console.log(`[FirebaseAdmin] Using Firestore database ID: ${dbId}`);
+logger.info({ dbId }, "Firebase Admin ready");
 export const adminDb = getFirestore(app, dbId);
 export default app;
