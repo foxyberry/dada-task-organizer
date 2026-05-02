@@ -55,7 +55,7 @@ export const createCategory = async (
     (doc) => (doc.data().name as string).trim().toLowerCase() === normalizedNew
   );
   if (isDuplicate) {
-    throw new Error("A category with this name already exists");
+    throw new Error("이미 같은 이름의 카테고리가 존재합니다");
   }
 
   const categoryRef = adminDb.collection("categories").doc();
