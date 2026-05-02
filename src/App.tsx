@@ -29,15 +29,16 @@ import { apiService } from './services/apiService';
 import { useNotification } from './hooks/useNotification';
 import { FamilyProvider, useFamily } from './contexts/FamilyContext';
 import { FamilySettings } from './components/FamilySettings';
-import { 
-  Plus, 
-  Trash2, 
-  CheckCircle2, 
-  Circle, 
-  BrainCircuit, 
-  LogOut, 
-  LogIn, 
-  ChevronRight, 
+import { UserSettings } from './components/UserSettings';
+import {
+  Plus,
+  Trash2,
+  CheckCircle2,
+  Circle,
+  BrainCircuit,
+  LogOut,
+  LogIn,
+  ChevronRight,
   ChevronDown,
   AlertCircle,
   Loader2,
@@ -54,7 +55,7 @@ import {
   CheckSquare,
   Users,
   Shield,
-  UserX
+  Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Toaster, toast } from 'sonner';
@@ -130,6 +131,7 @@ function AppContent() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [notifiedTasks, setNotifiedTasks] = useState<Set<string>>(new Set());
   const [showFamilySettings, setShowFamilySettings] = useState(false);
+  const [showUserSettings, setShowUserSettings] = useState(false);
   const [selectedFamilyId, setSelectedFamilyId] = useState<string | null>(null);
 
   const { families } = useFamily();
@@ -571,18 +573,11 @@ function AppContent() {
             <p className="text-sm font-medium">{user.displayName}</p>
           </div>
           <button
-            onClick={handleDeleteAccount}
-            className="p-2 hover:bg-red-100 rounded-full transition-colors"
-            title="계정 삭제"
-          >
-            <UserX className="w-5 h-5 text-stone-400 hover:text-red-500 transition-colors" />
-          </button>
-          <button
-            onClick={handleLogout}
+            onClick={() => setShowUserSettings(true)}
             className="p-2 hover:bg-stone-200 rounded-full transition-colors"
-            title="로그아웃"
+            title="설정"
           >
-            <LogOut className="w-5 h-5 text-stone-500" />
+            <Settings className="w-5 h-5 text-stone-500" />
           </button>
         </div>
       </header>
@@ -895,6 +890,17 @@ function AppContent() {
       <AnimatePresence>
         {showFamilySettings && (
           <FamilySettings onClose={() => setShowFamilySettings(false)} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showUserSettings && (
+          <UserSettings
+            user={user}
+            onClose={() => setShowUserSettings(false)}
+            onLogout={handleLogout}
+            onDeleteAccount={handleDeleteAccount}
+          />
         )}
       </AnimatePresence>
     </div>
