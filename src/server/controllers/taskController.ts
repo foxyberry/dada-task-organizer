@@ -102,6 +102,7 @@ export const getFamilyTasks = async (req: Request, res: Response) => {
     res.status(200).json(tasks);
   } catch (error: any) {
     logger.error({ err: error, uid: req.user?.uid, familyId: req.params.familyId }, "Error fetching family tasks");
-    res.status(403).json({ error: error.message || "가족 할 일 조회에 실패했습니다" });
+    const statusCode = error.message === "가족 그룹을 찾을 수 없습니다" ? 404 : 403;
+    res.status(statusCode).json({ error: error.message || "가족 할 일 조회에 실패했습니다" });
   }
 };
