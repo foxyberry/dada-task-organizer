@@ -12,6 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { User } from "firebase/auth";
+import { Link } from "react-router-dom";
 import { Modal } from "./Modal.js";
 
 interface UserSettingsProps {
@@ -128,6 +129,15 @@ export const UserSettings: React.FC<UserSettingsProps> = ({
                   <p className="text-xs text-stone-400">현재 기기에서 로그아웃합니다</p>
                 </div>
               </button>
+            </section>
+
+            {/* Legal */}
+            <section className="space-y-3">
+              <h3 className="text-xs font-bold text-stone-400 uppercase tracking-widest">법적 정보</h3>
+              <div className="flex gap-4 text-xs text-stone-400 font-bold uppercase tracking-widest">
+                <Link to="/privacy" onClick={onClose} className="hover:text-stone-700 transition-colors">개인정보처리방침</Link>
+                <Link to="/terms" onClick={onClose} className="hover:text-stone-700 transition-colors">이용약관</Link>
+              </div>
             </section>
 
             {/* Danger zone */}
