@@ -549,29 +549,6 @@ function AppContent() {
               Timeline
             </button>
           </div>
-          <button 
-            onClick={toggleNotifications}
-            className={cn(
-              "p-2 rounded-full transition-all relative",
-              notificationsEnabled ? "bg-stone-900 text-white" : "bg-stone-200 text-stone-500 hover:bg-stone-300"
-            )}
-            title={notificationsEnabled ? "알림 끄기" : "알림 켜기"}
-          >
-            <motion.div
-              initial={false}
-              animate={{ rotate: notificationsEnabled ? [0, -10, 10, -10, 10, 0] : 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              {notificationsEnabled ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
-            </motion.div>
-            {notificationsEnabled && (
-              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-stone-900" />
-            )}
-          </button>
-          <div className="hidden sm:block text-right">
-            <p className="text-xs text-stone-400 uppercase tracking-widest font-bold">User</p>
-            <p className="text-sm font-medium">{user.displayName}</p>
-          </div>
           <button
             onClick={() => setShowUserSettings(true)}
             className="p-2 hover:bg-stone-200 rounded-full transition-colors"
@@ -900,6 +877,8 @@ function AppContent() {
             onClose={() => setShowUserSettings(false)}
             onLogout={handleLogout}
             onDeleteAccount={handleDeleteAccount}
+            notificationsEnabled={notificationsEnabled}
+            onToggleNotifications={toggleNotifications}
           />
         )}
       </AnimatePresence>

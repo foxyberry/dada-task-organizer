@@ -7,6 +7,8 @@ import {
   User as UserIcon,
   Mail,
   AlertTriangle,
+  Bell,
+  BellOff,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { User } from "firebase/auth";
@@ -16,6 +18,8 @@ interface UserSettingsProps {
   onClose: () => void;
   onLogout: () => Promise<void>;
   onDeleteAccount: () => Promise<void>;
+  notificationsEnabled: boolean;
+  onToggleNotifications: () => Promise<void>;
 }
 
 export const UserSettings: React.FC<UserSettingsProps> = ({
@@ -23,6 +27,8 @@ export const UserSettings: React.FC<UserSettingsProps> = ({
   onClose,
   onLogout,
   onDeleteAccount,
+  notificationsEnabled,
+  onToggleNotifications,
 }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -93,7 +99,32 @@ export const UserSettings: React.FC<UserSettingsProps> = ({
               </div>
             </section>
 
-            {/* Actions */}
+            {/* Notifications */}
+            <section className="space-y-3">
+              <h3 className="text-xs font-bold text-stone-400 uppercase tracking-widest">알림</h3>
+              <button
+                onClick={onToggleNotifications}
+                className="w-full flex items-center justify-between p-4 bg-stone-50 hover:bg-stone-100 rounded-2xl transition-colors text-left"
+              >
+                <div className="flex items-center gap-3">
+                  {notificationsEnabled
+                    ? <Bell className="w-5 h-5 text-stone-900" />
+                    : <BellOff className="w-5 h-5 text-stone-400" />
+                  }
+                  <div>
+                    <p className="text-sm font-semibold text-stone-700">할 일 알림</p>
+                    <p className="text-xs text-stone-400">
+                      {notificationsEnabled ? "알림이 켜져 있습니다" : "알림이 꺼져 있습니다"}
+                    </p>
+                  </div>
+                </div>
+                <div className={`w-10 h-6 rounded-full transition-colors relative ${notificationsEnabled ? "bg-stone-900" : "bg-stone-200"}`}>
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${notificationsEnabled ? "translate-x-5" : "translate-x-1"}`} />
+                </div>
+              </button>
+            </section>
+
+            {/* Account actions */}
             <section className="space-y-3">
               <h3 className="text-xs font-bold text-stone-400 uppercase tracking-widest">계정 관리</h3>
               <button
