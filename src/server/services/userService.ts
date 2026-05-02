@@ -1,5 +1,17 @@
 import { adminAuth, adminDb } from "../firebaseAdmin.js";
 import logger from "../utils/logger.js";
+import type { DocumentReference } from "firebase-admin/firestore";
+
+const BATCH_LIMIT = 499;
+
+async function deleteInBatches(refs: DocumentReference[]): Promise<void> {
+  const db = adminDb;
+  for (let i = 0; i < refs.length; i += BATCH_LIMIT) {
+    const batch = db.batch();
+    refs.slice(i, i + BATCH_LIMIT).forEach((ref) => batch.delete(ref));
+    await batch.commit();
+  }
+}
 
 export const deleteUserAccount = async (userId: string): Promise<void> => {
   const db = adminDb;
@@ -13,15 +25,11 @@ export const deleteUserAccount = async (userId: string): Promise<void> => {
   for (const familyDoc of ownedFamilies.docs) {
     const familyId = familyDoc.id;
 
-    // Delete all invites for this family
     const invites = await db
       .collection("invites")
       .where("familyId", "==", familyId)
       .get();
-    const batch = db.batch();
-    invites.docs.forEach((d) => batch.delete(d.ref));
-    batch.delete(familyDoc.ref);
-    await batch.commit();
+    await deleteInBatches([...invites.docs.map((d) => d.ref), familyDoc.ref]);
 
     logger.info({ familyId, userId }, "Deleted owned family group");
   }
@@ -46,20 +54,14 @@ export const deleteUserAccount = async (userId: string): Promise<void> => {
     .collection("categories")
     .where("userId", "==", userId)
     .get();
-
-  const catBatch = db.batch();
-  categories.docs.forEach((d) => catBatch.delete(d.ref));
-  await catBatch.commit();
+  await deleteInBatches(categories.docs.map((d) => d.ref));
 
   // 4. Delete all tasks owned by user
   const tasks = await db
     .collection("tasks")
     .where("userId", "==", userId)
     .get();
-
-  const taskBatch = db.batch();
-  tasks.docs.forEach((d) => taskBatch.delete(d.ref));
-  await taskBatch.commit();
+  await deleteInBatches(tasks.docs.map((d) => d.ref));
 
   // 5. Delete Firebase Auth user last so the earlier steps still have auth context
   await adminAuth.deleteUser(userId);

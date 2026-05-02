@@ -256,20 +256,11 @@ function AppContent() {
   };
 
   const handleDeleteAccount = async () => {
-    const confirmed = window.confirm(
-      "정말 계정을 삭제하시겠습니까?\n\n" +
-      "• 모든 카테고리와 할 일이 삭제됩니다\n" +
-      "• 가족 그룹 소유자인 경우 그룹이 해산됩니다\n" +
-      "• 이 작업은 되돌릴 수 없습니다"
-    );
-    if (!confirmed) return;
-
     try {
       await apiService.deleteAccount();
       await signOut(auth);
       toast.success("계정이 삭제되었습니다.");
     } catch (error: any) {
-      console.error("Delete account error:", error);
       toast.error(error.message || "계정 삭제에 실패했습니다.");
     }
   };
