@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <rect width="32" height="32" rx="8" fill="#1c1917"/>
+  <!-- Brain circuit icon (simplified lucide BrainCircuit) -->
+  <circle cx="11" cy="13" r="3.5" stroke="#f5f5f4" stroke-width="1.5"/>
+  <circle cx="21" cy="11" r="2.5" stroke="#f5f5f4" stroke-width="1.5"/>
+  <circle cx="21" cy="21" r="2.5" stroke="#f5f5f4" stroke-width="1.5"/>
+  <line x1="14.5" y1="13" x2="18.5" y2="11" stroke="#f5f5f4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="14.5" y1="14" x2="18.5" y2="21" stroke="#f5f5f4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="21" y1="13.5" x2="21" y2="18.5" stroke="#f5f5f4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="11" y1="16.5" x2="11" y2="22" stroke="#f5f5f4" stroke-width="1.5" stroke-linecap="round"/>
+  <circle cx="11" cy="23" r="1.5" fill="#f5f5f4"/>
+</svg>

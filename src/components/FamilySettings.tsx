@@ -87,7 +87,7 @@ export const FamilySettings: React.FC<FamilySettingsProps> = ({ onClose }) => {
             </div>
             <div>
               <h2 className="text-xl font-serif italic text-stone-900">Family Sharing</h2>
-              <p className="text-xs text-stone-400 uppercase tracking-widest font-bold">Premium Feature</p>
+              <p className="text-xs text-stone-400 uppercase tracking-widest font-bold">Family Sharing</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-stone-100 rounded-full transition-colors">
