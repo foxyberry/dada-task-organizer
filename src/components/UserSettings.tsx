@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   Bell,
   BellOff,
+  Loader2,
 } from "lucide-react";
 import { User } from "firebase/auth";
 import { Modal } from "./Modal.js";
@@ -32,6 +33,7 @@ export const UserSettings: React.FC<UserSettingsProps> = ({
 }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleDeleteConfirm = async () => {
     setIsDeleting(true);
@@ -44,7 +46,7 @@ export const UserSettings: React.FC<UserSettingsProps> = ({
   };
 
   return (
-    <Modal onClose={onClose} maxWidth="max-w-md">
+    <Modal onClose={onClose} maxWidth="max-w-md" maxHeight="max-h-[80vh]">
           {/* Header */}
           <div className="p-6 border-b border-stone-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -113,10 +115,14 @@ export const UserSettings: React.FC<UserSettingsProps> = ({
             <section className="space-y-3">
               <h3 className="text-xs font-bold text-stone-400 uppercase tracking-widest">계정 관리</h3>
               <button
-                onClick={async () => { await onLogout(); onClose(); }}
-                className="w-full flex items-center gap-3 p-4 bg-stone-50 hover:bg-stone-100 rounded-2xl transition-colors text-left"
+                onClick={async () => {
+                  setIsLoggingOut(true);
+                  try { await onLogout(); onClose(); } finally { setIsLoggingOut(false); }
+                }}
+                disabled={isLoggingOut}
+                className="w-full flex items-center gap-3 p-4 bg-stone-50 hover:bg-stone-100 rounded-2xl transition-colors text-left disabled:opacity-50"
               >
-                <LogOut className="w-5 h-5 text-stone-500" />
+                {isLoggingOut ? <Loader2 className="w-5 h-5 text-stone-400 animate-spin" /> : <LogOut className="w-5 h-5 text-stone-500" />}
                 <div>
                   <p className="text-sm font-semibold text-stone-700">로그아웃</p>
                   <p className="text-xs text-stone-400">현재 기기에서 로그아웃합니다</p>
