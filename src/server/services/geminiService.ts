@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { AIAnalysisResult } from "../../shared/geminiTypes.js";
+import logger from "../utils/logger.js";
 
 const getGeminiClient = () => {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -125,7 +126,7 @@ export async function analyzeTaskWithGemini(
   try {
     return JSON.parse(response.text || "{}") as AIAnalysisResult;
   } catch (error) {
-    console.error("Failed to parse AI response:", error);
+    logger.error({ err: error }, "Failed to parse Gemini AI response");
     throw new Error("AI analysis failed to return valid JSON.");
   }
 }

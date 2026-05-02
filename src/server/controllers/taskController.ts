@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import type { UpdateTaskRequest } from "../../shared/taskTypes.js";
 import * as taskService from "../services/taskService.js";
+import logger from "../utils/logger.js";
 
 export const analyzeAndCreateTask = async (req: Request, res: Response) => {
   try {
     const { input, familyId, timezone } = req.body;
-    // @ts-ignore
     const user = req.user;
 
     if (typeof input !== "string" || input.trim().length === 0) {
@@ -33,8 +33,8 @@ export const analyzeAndCreateTask = async (req: Request, res: Response) => {
 
     res.status(201).json(task);
   } catch (error: any) {
-    console.error("Error analyzing and creating task:", error);
-    res.status(400).json({ error: error.message || "Failed to create task" });
+    logger.error({ err: error, uid: req.user?.uid }, "Error analyzing and creating task");
+    res.status(400).json({ error: error.message || "할 일 생성에 실패했습니다" });
   }
 };
 
@@ -46,8 +46,8 @@ export const createSharedTask = async (req: Request, res: Response) => {
     const task = await taskService.createSharedTask(taskData);
     res.status(201).json(task);
   } catch (error: any) {
-    console.error("Error creating shared task:", error);
-    res.status(400).json({ error: error.message || "Failed to create shared task" });
+    logger.error({ err: error, uid: req.user?.uid }, "Error creating shared task");
+    res.status(400).json({ error: error.message || "공유 할 일 생성에 실패했습니다" });
   }
 };
 
@@ -64,9 +64,9 @@ export const updateTask = async (req: Request, res: Response) => {
     const task = await taskService.updateTask(taskId, updates, user.uid);
     res.status(200).json(task);
   } catch (error: any) {
-    console.error("Error updating task:", error);
+    logger.error({ err: error, uid: req.user?.uid, taskId: req.params.taskId }, "Error updating task");
     const statusCode = error.message === "Task not found" ? 404 : error.message === "Access denied" ? 403 : 400;
-    res.status(statusCode).json({ error: error.message || "Failed to update task" });
+    res.status(statusCode).json({ error: error.message || "할 일 수정에 실패했습니다" });
   }
 };
 
@@ -82,10 +82,10 @@ export const deleteTask = async (req: Request, res: Response) => {
     await taskService.deleteTask(taskId, user.uid);
     res.status(204).send();
   } catch (error: any) {
-    console.error("Error deleting task:", error);
+    logger.error({ err: error, uid: req.user?.uid, taskId: req.params.taskId }, "Error deleting task");
     const statusCode =
       error.message === "Task not found" ? 404 : error.message === "Only the task owner can delete this task" ? 403 : 400;
-    res.status(statusCode).json({ error: error.message || "Failed to delete task" });
+    res.status(statusCode).json({ error: error.message || "할 일 삭제에 실패했습니다" });
   }
 };
 
@@ -101,7 +101,7 @@ export const getFamilyTasks = async (req: Request, res: Response) => {
     const tasks = await taskService.getTasksByFamily(familyId, user.uid);
     res.status(200).json(tasks);
   } catch (error: any) {
-    console.error("Error fetching family tasks:", error);
-    res.status(403).json({ error: error.message || "Failed to fetch family tasks" });
+    logger.error({ err: error, uid: req.user?.uid, familyId: req.params.familyId }, "Error fetching family tasks");
+    res.status(403).json({ error: error.message || "가족 할 일 조회에 실패했습니다" });
   }
 };

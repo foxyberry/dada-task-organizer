@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as familyService from "../services/familyService.js";
+import logger from "../utils/logger.js";
 
 export const createFamily = async (req: Request, res: Response) => {
   try {
@@ -13,8 +14,8 @@ export const createFamily = async (req: Request, res: Response) => {
     const { family, invite } = await familyService.createFamilyWithInvite(user.uid, name);
     res.status(201).json({ family, invite });
   } catch (error: any) {
-    console.error("Error creating family:", error);
-    res.status(500).json({ error: error.message || "Failed to create family group" });
+    logger.error({ err: error, uid: req.user?.uid }, "Error creating family");
+    res.status(500).json({ error: error.message || "가족 그룹 생성에 실패했습니다" });
   }
 };
 
@@ -34,9 +35,9 @@ export const generateInvite = async (req: Request, res: Response) => {
 
     const invite = await familyService.generateInviteCode(familyId);
     res.status(201).json(invite);
-  } catch (error) {
-    console.error("Error generating invite:", error);
-    res.status(500).json({ error: "Failed to generate invite code" });
+  } catch (error: any) {
+    logger.error({ err: error, uid: req.user?.uid }, "Error generating invite");
+    res.status(500).json({ error: "초대 코드 생성에 실패했습니다" });
   }
 };
 
@@ -52,8 +53,8 @@ export const joinFamily = async (req: Request, res: Response) => {
     const family = await familyService.joinFamilyGroup(user.uid, code);
     res.status(200).json(family);
   } catch (error: any) {
-    console.error("Error joining family:", error);
-    res.status(400).json({ error: error.message || "Failed to join family group" });
+    logger.error({ err: error, uid: req.user?.uid }, "Error joining family");
+    res.status(400).json({ error: error.message || "가족 그룹 참여에 실패했습니다" });
   }
 };
 
@@ -63,7 +64,7 @@ export const getMyFamilies = async (req: Request, res: Response) => {
     const families = await familyService.getUserFamilyGroups(user.uid);
     res.status(200).json(families);
   } catch (error: any) {
-    console.error("Error fetching families:", error);
-    res.status(500).json({ error: error.message || "Failed to fetch family groups" });
+    logger.error({ err: error, uid: req.user?.uid }, "Error fetching families");
+    res.status(500).json({ error: error.message || "가족 그룹 조회에 실패했습니다" });
   }
 };
