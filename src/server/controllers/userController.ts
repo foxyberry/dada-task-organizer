@@ -8,7 +8,7 @@ export const getProfile = async (req: Request, res: Response) => {
       email: user.email,
       name: user.name,
       picture: user.picture,
-      isPremium: true, // Placeholder for future premium status check
+      isPremium: true,
     });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch profile" });
