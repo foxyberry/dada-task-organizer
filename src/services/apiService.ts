@@ -56,6 +56,18 @@ export const apiService = {
     return response.json();
   },
 
+  async deleteAccount() {
+    const headers = await getAuthHeaders();
+    const response = await fetch("/api/account", {
+      method: "DELETE",
+      headers,
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "계정 삭제에 실패했습니다");
+    }
+  },
+
   async joinFamily(code: string) {
     const headers = await getAuthHeaders();
     const response = await fetch("/api/family/join", {

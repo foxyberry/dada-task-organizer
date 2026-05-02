@@ -3,7 +3,7 @@ import {
   createCategory,
   deleteCategory,
 } from "../controllers/categoryController.js";
-import { getProfile } from "../controllers/userController.js";
+import { getProfile, deleteAccount } from "../controllers/userController.js";
 import {
   createFamily,
   generateInvite,
@@ -24,6 +24,7 @@ const router = Router();
 
 // User routes
 router.get("/profile", authMiddleware, getProfile);
+router.delete("/account", authMiddleware, deleteAccount);
 
 // Family routes
 router.get("/families", authMiddleware, getMyFamilies);

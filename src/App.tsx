@@ -25,6 +25,7 @@ import {
   deleteTask as deleteTaskOnServer,
   updateTask as updateTaskOnServer,
 } from './services/taskService';
+import { apiService } from './services/apiService';
 import { useNotification } from './hooks/useNotification';
 import { FamilyProvider, useFamily } from './contexts/FamilyContext';
 import { FamilySettings } from './components/FamilySettings';
@@ -52,7 +53,8 @@ import {
   LayoutList,
   CheckSquare,
   Users,
-  Shield
+  Shield,
+  UserX
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Toaster, toast } from 'sonner';
@@ -248,6 +250,25 @@ function AppContent() {
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("로그아웃에 실패했습니다.");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      "정말 계정을 삭제하시겠습니까?\n\n" +
+      "• 모든 카테고리와 할 일이 삭제됩니다\n" +
+      "• 가족 그룹 소유자인 경우 그룹이 해산됩니다\n" +
+      "• 이 작업은 되돌릴 수 없습니다"
+    );
+    if (!confirmed) return;
+
+    try {
+      await apiService.deleteAccount();
+      await signOut(auth);
+      toast.success("계정이 삭제되었습니다.");
+    } catch (error: any) {
+      console.error("Delete account error:", error);
+      toast.error(error.message || "계정 삭제에 실패했습니다.");
     }
   };
 
@@ -549,7 +570,14 @@ function AppContent() {
             <p className="text-xs text-stone-400 uppercase tracking-widest font-bold">User</p>
             <p className="text-sm font-medium">{user.displayName}</p>
           </div>
-          <button 
+          <button
+            onClick={handleDeleteAccount}
+            className="p-2 hover:bg-red-100 rounded-full transition-colors"
+            title="계정 삭제"
+          >
+            <UserX className="w-5 h-5 text-stone-400 hover:text-red-500 transition-colors" />
+          </button>
+          <button
             onClick={handleLogout}
             className="p-2 hover:bg-stone-200 rounded-full transition-colors"
             title="로그아웃"
