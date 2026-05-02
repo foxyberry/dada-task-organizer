@@ -62,7 +62,7 @@ export const createRateLimiter = (options: RateLimitOptions) => {
       const retryAfterSeconds = Math.max(1, Math.ceil((entry.resetAt - now) / 1000));
       res.setHeader("Retry-After", String(retryAfterSeconds));
       return res.status(429).json({
-        error: `Too many ${displayName} requests. Try again in ${retryAfterSeconds} seconds.`,
+        error: `${displayName} 요청이 너무 많습니다. ${retryAfterSeconds}초 후 다시 시도해주세요.`,
       });
     }
 
@@ -88,5 +88,5 @@ const GEMINI_WINDOW_MS = parseIntEnv(process.env.GEMINI_RATE_LIMIT_WINDOW_MS, 60
 export const geminiRateLimit = createRateLimiter({
   limit: GEMINI_LIMIT,
   windowMs: GEMINI_WINDOW_MS,
-  displayName: "AI analysis",
+  displayName: "AI 분석",
 });

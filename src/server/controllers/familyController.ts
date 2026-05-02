@@ -8,7 +8,7 @@ export const createFamily = async (req: Request, res: Response) => {
     const user = req.user;
 
     if (!name) {
-      return res.status(400).json({ error: "Family name is required" });
+      return res.status(400).json({ error: "가족 그룹 이름을 입력해주세요" });
     }
 
     const { family, invite } = await familyService.createFamilyWithInvite(user.uid, name);
@@ -25,12 +25,12 @@ export const generateInvite = async (req: Request, res: Response) => {
     const user = req.user;
 
     if (!familyId) {
-      return res.status(400).json({ error: "Family ID is required" });
+      return res.status(400).json({ error: "가족 그룹 ID가 필요합니다" });
     }
 
     const family = await familyService.getFamilyGroup(familyId);
     if (!family || family.ownerId !== user.uid) {
-      return res.status(403).json({ error: "Only the owner can generate invites" });
+      return res.status(403).json({ error: "초대 코드는 그룹 소유자만 생성할 수 있습니다" });
     }
 
     const invite = await familyService.generateInviteCode(familyId);
@@ -47,7 +47,7 @@ export const joinFamily = async (req: Request, res: Response) => {
     const user = req.user;
 
     if (!code) {
-      return res.status(400).json({ error: "Invite code is required" });
+      return res.status(400).json({ error: "초대 코드를 입력해주세요" });
     }
 
     const family = await familyService.joinFamilyGroup(user.uid, code);

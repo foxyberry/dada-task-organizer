@@ -6,13 +6,13 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Unauthorized: No token provided" });
+    return res.status(401).json({ error: "인증이 필요합니다" });
   }
 
   const idToken = authHeader.split("Bearer ")[1];
 
   if (!idToken) {
-    return res.status(401).json({ error: "Unauthorized: Empty token provided" });
+    return res.status(401).json({ error: "인증이 필요합니다" });
   }
 
   try {
@@ -21,6 +21,6 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     next();
   } catch (error) {
     logger.error({ err: error }, "Error verifying Firebase ID token");
-    return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    return res.status(401).json({ error: "인증 정보가 유효하지 않습니다" });
   }
 };

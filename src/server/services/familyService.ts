@@ -51,21 +51,21 @@ export const joinFamilyGroup = async (userId: string, code: string) => {
     .get();
 
   if (invitesSnapshot.empty) {
-    throw new Error("Invalid invite code");
+    throw new Error("유효하지 않은 초대 코드입니다");
   }
 
   const inviteDoc = invitesSnapshot.docs[0];
   const inviteData = inviteDoc.data();
 
   if (new Date(inviteData.expiresAt) < new Date()) {
-    throw new Error("Invite code has expired");
+    throw new Error("초대 코드가 만료되었습니다");
   }
 
   const familyRef = adminDb.collection("familyGroups").doc(inviteData.familyId);
   const familyDoc = await familyRef.get();
 
   if (!familyDoc.exists) {
-    throw new Error("Family group no longer exists");
+    throw new Error("가족 그룹이 더 이상 존재하지 않습니다");
   }
 
   const familyData = familyDoc.data();
